@@ -1,4 +1,6 @@
 import Vuex from 'vuex';
+import md5 from 'md5';
+import db from '~/plugins/firestore';
 
 
 const createStore = () => {
@@ -7,7 +9,9 @@ const createStore = () => {
             headlines: [],
             category: '',
             loading: false,
-            country: 'us'
+            country: 'us',
+            token: '',
+            user: null
         },
         mutations: {
             // payload is headlines
@@ -25,6 +29,14 @@ const createStore = () => {
             // payload is country
             setCountry(state, payload) {
                 state.country = payload;
+            },
+            // payload is token
+            setToken(state, payload) {
+                state.token = payload;
+            },
+            // payload is user object
+            setUser(state, payload) {
+                state.user = payload;
             }
         },
         actions: {
@@ -35,13 +47,35 @@ const createStore = () => {
                 const { articles } = await this.$axios.$get(payload);
                 commit('setLoading', false);
                 commit('setHeadlines', articles);
+            },
+            // payload is userPayload
+            async authenticateUser(context, payload) {
+                let { commit } = context;
+                try {
+                    commit('setLoading', true);
+                    const authUserData = await this.$axios.$post(
+                        '/register/', 
+                        payload
+                    );
+                    const avatar = `http://gravatar.com/avatar/${md5(authUserData.email)}?d=identicon`;
+                    const user = { email: authUserData.email, avatar };
+                    await db.collection('users').doc(payload.email).set(user);
+                    commit('setUser', user);
+                    commit('setToken', authUserData.idToken);
+                    commit('setLoading', false);
+                } catch(err) {
+                    console.error(err);
+                    commit('setLoading', false);
+                }
             }
         },
         getters: {
             headlines: state => state.headlines,
             category: state => state.category,
             loading: state => state.loading,
-            country: state => state.country
+            country: state => state.country,
+            isAuthenticated: state => !!state.token,
+            user: state => state.user
         }
     })
 }

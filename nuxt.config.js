@@ -52,7 +52,8 @@ export default {
   // Plugins to run before rendering page: https://go.nuxtjs.dev/config-plugins
   plugins: [
     { src: '~/plugins/vue-material' },
-    { src: '~/plugins/axios' }
+    { src: '~/plugins/axios' },
+    { src: '~/plugins/firestore' }
   ],
 
   // Auto import components: https://go.nuxtjs.dev/config-components
@@ -76,10 +77,16 @@ export default {
     proxy: true
   },
   proxy: {
-    '/api': {
+    '/api/': {
       target: 'https://newsapi.org/v2/',
       pathRewrite: {
         '^/api/': ''
+      }
+    },
+    '/register/': {
+      target: 'https://identitytoolkit.googleapis.com/v1/accounts:signUp?key=AIzaSyDShrAeyOZW-5V0fCmT2B_sTWnW-mysSqg',
+      pathRewrite: {
+        '^/register/': ''
       }
     }
   },
