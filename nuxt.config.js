@@ -1,3 +1,6 @@
+const pkg = require('./package');
+
+
 export default {
   // provides a direct configuration bridge for the Vue.config
   vue: {
@@ -22,9 +25,13 @@ export default {
   // Target: https://go.nuxtjs.dev/config-target
   target: 'static',
 
+  router: {
+    middleware: 'check-auth'
+  },
+
   // Global page headers: https://go.nuxtjs.dev/config-head
   head: {
-    title: 'nuxt-news',
+    title: pkg.name,
     htmlAttrs: {
       lang: 'en'
     },
