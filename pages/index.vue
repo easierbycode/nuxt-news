@@ -26,7 +26,7 @@
 
       <md-field>
         <label for="country">Country</label>
-        <md-select @input="changeCountry" name='country' id='country'>
+        <md-select @input="changeCountry" :value="country" name='country' id='country'>
           <md-option value='us'>United States</md-option>
           <md-option value='ca'>Canada</md-option>
           <md-option value='de'>Germany</md-option>
