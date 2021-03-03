@@ -54,12 +54,25 @@ const createStore = () => {
                 try {
                     commit('setLoading', true);
                     const authUserData = await this.$axios.$post(
-                        '/register/', 
-                        payload
+                        `/${payload.action}/`, 
+                        {
+                            email: payload.email,
+                            password: payload.password,
+                            returnSecureToken: payload.returnSecureToken
+                        }
                     );
-                    const avatar = `http://gravatar.com/avatar/${md5(authUserData.email)}?d=identicon`;
-                    const user = { email: authUserData.email, avatar };
-                    await db.collection('users').doc(payload.email).set(user);
+                    
+                    let user;
+                    if (payload.action === 'register') {
+                        const avatar = `http://gravatar.com/avatar/${md5(authUserData.email)}?d=identicon`;
+                        const user = { email: authUserData.email, avatar };
+                        await db.collection('users').doc(payload.email).set(user);
+                    } else {
+                        const loginRef = db.collection('users').doc(payload.email);
+                        const loggedInUser = await loginRef.get()
+                        user = loggedInUser.data();
+                    }
+                    
                     commit('setUser', user);
                     commit('setToken', authUserData.idToken);
                     commit('setLoading', false);

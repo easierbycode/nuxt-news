@@ -88,6 +88,12 @@ export default {
       pathRewrite: {
         '^/register/': ''
       }
+    },
+    '/login/': {
+      target: 'https://identitytoolkit.googleapis.com/v1/accounts:signInWithPassword?key=AIzaSyDShrAeyOZW-5V0fCmT2B_sTWnW-mysSqg',
+      pathRewrite: {
+        '^/login/': ''
+      }
     }
   },
 
