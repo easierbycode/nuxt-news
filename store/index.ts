@@ -121,9 +121,21 @@ const createStore = () => {
                         querySnapshot.forEach(doc => {
                             headlines.push(doc.data());
                             commit('setFeed', headlines);
-                        })
+                        });
+
+                        if (querySnapshot.empty) {
+                            headlines = [];
+                            commit('setFeed', headlines);
+                        }
                     })
                 }
+            },
+            // payload is headline object
+            async removeHeadlineFromFeed(context, payload) {
+                let { state } = context;
+                const headlineRef = db.collection(`users/${state.user.email}/feed`).doc(payload.title);
+
+                await headlineRef.delete();
             }
         },
         getters: {

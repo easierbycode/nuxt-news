@@ -63,7 +63,7 @@
             <span>View Comments</span>
           </div>
 
-          <md-button class="md-icon-button md-list-action">
+          <md-button @click='removeHeadlineFromFeed(headline)' class="md-icon-button md-list-action">
             <md-icon class="md-accent">delete</md-icon>
           </md-button>
         </md-list-item>
@@ -209,6 +209,9 @@
       isInFeed(title) {
         const inFeed = this.feed.findIndex(headline => headline.title === title) > -1;
         return inFeed ? 'md-primary' : '';
+      },
+      async removeHeadlineFromFeed(headline) {
+        await this.$store.dispatch('removeHeadlineFromFeed', headline);
       }
     }
   }
