@@ -12,7 +12,8 @@ const createStore = () => {
             loading: false,
             country: 'us',
             token: '',
-            user: null
+            user: null,
+            feed: []
         },
         mutations: {
             // payload is headlines
@@ -40,7 +41,12 @@ const createStore = () => {
                 state.user = payload;
             },
             clearToken: state => (state.token = ''),
-            clearUser: state => (state.user = null)
+            clearUser: state => (state.user = null),
+            // payload is headlines array
+            setFeed(state, payload) {
+                state.feed = payload;
+            },
+            clearFeed: state => (state.feed = [])
         },
         actions: {
             // payload is apiUrl
@@ -94,7 +100,30 @@ const createStore = () => {
                 let { commit } = context;
                 commit('clearToken');
                 commit('clearUser');
+                commit('clearFeed');
                 clearUserData();
+            },
+            // payload is headline
+            async addHeadlineToFeed(context, payload) {
+                let { state } = context;
+                const feedRef = db.collection(`users/${state.user.email}/feed`).doc(payload.title);
+
+                await feedRef.set(payload);
+            },
+            async loadUserFeed(context) {
+                let { state, commit } = context;
+
+                if (state.user) {
+                    const feedRef = db.collection(`users/${state.user.email}/feed`);
+
+                    await feedRef.onSnapshot(querySnapshot => {
+                        let headlines = [];
+                        querySnapshot.forEach(doc => {
+                            headlines.push(doc.data());
+                            commit('setFeed', headlines);
+                        })
+                    })
+                }
             }
         },
         getters: {
@@ -103,7 +132,8 @@ const createStore = () => {
             loading: state => state.loading,
             country: state => state.country,
             isAuthenticated: state => !!state.token,
-            user: state => state.user
+            user: state => state.user,
+            feed: state => state.feed
         }
     })
 }
