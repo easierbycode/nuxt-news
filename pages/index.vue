@@ -45,8 +45,15 @@
         </md-select>
       </md-field>
 
+      <!-- Placeholder if feed empty -->
+      <md-empty-state v-if='feed.length === 0 && !user' class="md-primary" md-icon='bookmarks' md-label='No bookmarks' md-description='Login to bookmark headlines'>
+        <md-button @click="$router.push('/login')" class='md-primary md-raised'>Login</md-button>
+      </md-empty-state>
+
+      <md-empty-state v-else-if='feed.length === 0' class="md-accent" md-icon='bookmark_outline' md-label='No bookmarks' md-description='Login to begin adding bookmarks'></md-empty-state>
+
       <!-- Feed content -->
-      <md-list class="md-triple-line" v-for='headline in feed' :key='headline.id'>
+      <md-list v-else class="md-triple-line" v-for='headline in feed' :key='headline.id'>
         <md-list-item>
           <md-avatar><img :src="headline.urlToImage" :alt="headline.title"></md-avatar>
 
