@@ -1,8 +1,9 @@
 <template>
     <div class="md-layout md-alignment-center" style='margin: 5em 0'>
 
+        <div class='md-layout-item md-size-75 md-small-size-80 md-xsmall-size-100'>
         <!-- Headline markup -->
-        <md-card class="md-layout-item md-size-75 md-small-size-80 md-xsmall-size-100">
+        <md-card>
             <md-card-media style='height: 300px' md-ratio='16:9'>
                 <img :src="headline.urlToImage" :alt="headline.title">
             </md-card-media>
@@ -26,6 +27,22 @@
             <md-card-content>{{ headline.content }}</md-card-content>
         </md-card>
 
+        <!-- Comment form -->
+        <form @submit.prevent='sendComment'>
+            <md-field>
+                <label>Enter your comment</label>
+                <md-textarea v-model='text' :disabled='loading || !user'></md-textarea>
+                <md-icon>description</md-icon>
+            </md-field>
+            <md-button 
+                class="md-primary md-raised" 
+                type='submit' 
+                :disabled='loading || !user'
+            >
+                Send Comment
+            </md-button>
+        </form>
+
         <!-- Back button -->
         <md-button
             @click="$router.go(-1)" 
@@ -33,18 +50,49 @@
         >
             <md-icon>arrow_back</md-icon>
         </md-button>
+        </div>
     </div>
 </template>
 
 
 <script lang="ts">
+import uuidv4 from 'uuid/v4';
+
+
 export default {
+    data: () => ({
+        text: ''
+    }),
     async fetch({ store, params }) {
         await store.dispatch('loadHeadline', params.slug);
     },
     computed: {
         headline() {
             return this.$store.getters.headline;
+        },
+        loading() {
+            return this.$store.getters.loading;
+        },
+        user() {
+            return this.$store.getters.user;
+        }
+    },
+    methods: {
+        async sendComment() {
+            const comment = {
+                id: uuidv4(),
+                text: this.text,
+                user: this.getCommentUserData(),
+                publishedAt: Date.now(),
+                likes: 0
+            };
+            await this.$store.dispatch('sendComment', comment);
+            this.text = '';
+        },
+        getCommentUserData() {
+            const commentUserData = { ...this.user };
+            commentUserData['username'] = commentUserData['email'].split('@')[0];
+            return commentUserData;
         }
     }
 }

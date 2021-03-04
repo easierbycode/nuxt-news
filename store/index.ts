@@ -178,6 +178,23 @@ const createStore = () => {
                         commit('setHeadline', headline);
                     }
                 })
+            },
+            // payload is comment
+            async sendComment(context, payload) {
+                let { state, commit } = context;
+                const commentsRef = db.collection(`headlines/${state.headline.slug}/comments`);
+
+                commit('setLoading', true);
+                await commentsRef.doc(payload.id).set(payload);
+                await commentsRef.get().then(querySnapshot => {
+                    let comments = [];
+                    querySnapshot.forEach(doc => {
+                        comments.push(doc.data());
+                        const updatedHeadline = { ...state.headline, comments };
+                        commit('setHeadline', updatedHeadline);
+                    });
+                });
+                commit('setLoading', false);
             }
         },
         getters: {
