@@ -14,7 +14,8 @@ const createStore = () => {
             country: 'us',
             token: '',
             user: null,
-            feed: []
+            feed: [],
+            headline: null
         },
         mutations: {
             // payload is headlines
@@ -47,7 +48,11 @@ const createStore = () => {
             setFeed(state, payload) {
                 state.feed = payload;
             },
-            clearFeed: state => (state.feed = [])
+            clearFeed: state => (state.feed = []),
+            // payload is headline
+            setHeadline(state, payload) {
+                state.headline = payload;
+            }
         },
         actions: {
             // payload is apiUrl
@@ -146,6 +151,33 @@ const createStore = () => {
                 const headlineRef = db.collection(`users/${state.user.email}/feed`).doc(payload.title);
 
                 await headlineRef.delete();
+            },
+            // payload is headline object
+            async saveHeadline(context, payload) {
+                const headlineRef = db.collection('headlines').doc(payload.slug);
+
+                let headlineId;
+                await headlineRef.get().then(doc => {
+                    if (doc.exists) {
+                        headlineId = doc.id;
+                    }
+                })
+
+                if (!headlineId) {
+                    await headlineRef.set(payload);
+                }
+            },
+            // payload is headlineSlug
+            async loadHeadline(context, payload) {
+                let { commit } = context;
+                const headlineRef = db.collection('headlines').doc(payload);
+
+                await headlineRef.get().then(doc => {
+                    if (doc.exists) {
+                        const headline = doc.data();
+                        commit('setHeadline', headline);
+                    }
+                })
             }
         },
         getters: {
@@ -155,7 +187,8 @@ const createStore = () => {
             country: state => state.country,
             isAuthenticated: state => !!state.token,
             user: state => state.user,
-            feed: state => state.feed
+            feed: state => state.feed,
+            headline: state => state.headline
         }
     })
 }

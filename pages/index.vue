@@ -213,8 +213,11 @@
       async removeHeadlineFromFeed(headline) {
         await this.$store.dispatch('removeHeadlineFromFeed', headline);
       },
-      saveHeadline(headline) {
-        this.$router.push(`/headlines/${headline.slug}`);
+      async saveHeadline(headline) {
+        // this.$router.push(`/headlines/${headline.slug}`);
+        await this.$store.dispatch('saveHeadline', headline).then(() => {
+          this.$router.push(`/headlines/${headline.slug}`);
+        });
       }
     }
   }
